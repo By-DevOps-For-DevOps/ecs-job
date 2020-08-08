@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  Tag:
+    Type: String
+    Description: Tag of the Docker Image.
+    Default: IMAGE_TAG
+  EnvironmentName:
+    Type: String
+    Description: Name of the Environment.
+    Default: ENVIRONMENT_NAME
+  Email:
+    Type: String
+    Description: Email address to notify when an API activity has triggered an alarm
+    Default: EMAIL
+  ECSRespositoryName:
+    Type: String
+    Description: 'ECS Repository Name'
+    Default: ECS_REPOSITORY_NAME
+
+Resources:
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      #The Family name will be used along with ECS_CLUSTER_NAME to prepare the stack name. It should be of Format abb-cdd-sd
+      Family: APP_NAME-BUILD_SCOPE
+      ContainerDefinitions:
+      - Name: APP_NAME
+        Cpu: ECS_CPU_COUNT
+        Essential: 'true'
+        Image:
+          "Fn::Sub":
+            - '${AccountId}.dkr.ecr.${Region}.amazonaws.com/${ECSRespositoryName}:TAG'
+            - { AccountId: { "Ref" : "AWS::AccountId" }, Region: { "Ref" : "AWS::Region" }}
+        MemoryReservation: ECS_MEMORY_RESERVATION_COUNT
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group:
+              Ref: ContainerLogGroup
+            awslogs-region:
+              Ref: AWS::Region
+        ENVIRONMENT_VARIABLES
+  ContainerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "${EnvironmentName}-APP_NAME"
+      RetentionInDays: 14
+  CloudwatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: "ECSLogGroup-${AWS::StackName}"
+      RetentionInDays: 14
