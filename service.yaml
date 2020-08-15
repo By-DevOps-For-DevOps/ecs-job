@@ -79,3 +79,7 @@ ENVIRONMENT_VARIABLES
             - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet1'
             - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet2'
 
+Outputs:
+  ecsservice:
+    Value:
+      Ref: Service
