@@ -63,23 +63,23 @@ ENVIRONMENT_VARIABLES
   # The service. The service is a resource which allows you to run multiple
   # copies of a type of task, and gather up their logs and metrics, as well
   # as monitor the number of running tasks and replace any that have crashed
-  Service:
-    Type: AWS::ECS::Service
-    Properties:
-      Cluster:
-        Fn::ImportValue: !Sub '${EnvironmentName}-ECSCluster'
-      LaunchType: FARGATE
-      DesiredCount: DESIRED_COUNT
-      TaskDefinition: !Ref 'TaskDefinition'
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          SecurityGroups:
-            - Fn::ImportValue: !Sub '${EnvironmentName}-ECSHostSecurityGroup'
-          Subnets:
-            - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet1'
-            - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet2'
-
-Outputs:
-  ecsservice:
-    Value:
-      Ref: Service
+#  Service:
+#    Type: AWS::ECS::Service
+#    Properties:
+#      Cluster:
+#        Fn::ImportValue: !Sub '${EnvironmentName}-ECSCluster'
+#      LaunchType: FARGATE
+#      DesiredCount: DESIRED_COUNT
+#      TaskDefinition: !Ref 'TaskDefinition'
+#      NetworkConfiguration:
+#        AwsvpcConfiguration:
+#          SecurityGroups:
+#            - Fn::ImportValue: !Sub '${EnvironmentName}-ECSHostSecurityGroup'
+#          Subnets:
+#            - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet1'
+#            - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet2'
+#
+#Outputs:
+#  ecsservice:
+#    Value:
+#      Ref: Service
