@@ -62,27 +62,27 @@ ENVIRONMENT_VARIABLES
 
   ScheduledTaskRule:
     Type: AWS::Events::Rule
-      Properties:
-        Description: !Sub 'Trigger ${EnvironmentName}-APP_NAME according to the specified schedule'
-        ScheduleExpression: 'cron(10 * * * ? *)'
-        State: ENABLED
-        Targets:
-          - Id: !Sub '${EnvironmentName}-APP_NAME'
-            RoleArn: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
-            EcsParameters:
-              TaskDefinitionArn: !Ref TaskDefinition
-              TaskCount: 1
-              LaunchType: 'FARGATE'
-              PlatformVersion: 'LATEST'
-              NetworkConfiguration:
-                AwsVpcConfiguration:
-                  AssignPublicIp: DISABLED
-                  SecurityGroups:
-                    - Fn::ImportValue: !Sub '${EnvironmentName}-ECSHostSecurityGroup'
-                  Subnets:
-                    - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet1'
-                    - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet2'
-            Arn: !Sub '${EnvironmentName}-ECSCluster.Arn'
+    Properties:
+      Description: !Sub 'Trigger ${EnvironmentName}-APP_NAME according to the specified schedule'
+      ScheduleExpression: 'cron(10 * * * ? *)'
+      State: ENABLED
+      Targets:
+        - Id: !Sub '${EnvironmentName}-APP_NAME'
+          RoleArn: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
+          EcsParameters:
+            TaskDefinitionArn: !Ref TaskDefinition
+            TaskCount: 1
+            LaunchType: 'FARGATE'
+            PlatformVersion: 'LATEST'
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: DISABLED
+                SecurityGroups:
+                  - Fn::ImportValue: !Sub '${EnvironmentName}-ECSHostSecurityGroup'
+                Subnets:
+                  - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet1'
+                  - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet2'
+          Arn: !Sub '${EnvironmentName}-ECSCluster.Arn'
 
   # The service. The service is a resource which allows you to run multiple
   # copies of a type of task, and gather up their logs and metrics, as well
