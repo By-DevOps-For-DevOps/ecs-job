@@ -18,12 +18,8 @@ Parameters:
     Default: ECS_REPOSITORY_NAME
 
 Resources:
-  # Only used to overcome CloudFormation limitation with !GetAtt
-  ECSCluster:
-    Type: AWS::ECS::Cluster
-    Properties:
-      ClusterName: !Ref EnvironmentName
-
+  # The task definition. This is a simple metadata description of what
+  # container to run, and what resource requirements it has.
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
