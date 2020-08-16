@@ -73,10 +73,7 @@ ENVIRONMENT_VARIABLES
       ScheduleExpression: 'cron(10 * * * ? *)'
       State: ENABLED
       Targets:
-        #- Arn: !Sub 'arn:aws:ecs:AWS_REGION:AWS_ACCOUNT:cluster/${EnvironmentName}'
-        - Arn: !GetAtt
-            - ECSCluster
-            - Arn
+        - Arn: !Sub 'arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${EnvironmentName}'
           Id: !Sub '${EnvironmentName}-APP_NAME'
           RoleArn: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
           EcsParameters:
