@@ -67,7 +67,10 @@ ENVIRONMENT_VARIABLES
       ScheduleExpression: 'cron(10 * * * ? *)'
       State: ENABLED
       Targets:
-        - Id: !Sub '${EnvironmentName}-APP_NAME'
+        - Arn: !GetAtt
+            - !Sub '${EnvironmentName}-ECSCluster'
+            - Arn
+          Id: !Sub '${EnvironmentName}-APP_NAME'
           RoleArn: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
           EcsParameters:
             TaskDefinitionArn: !Ref TaskDefinition
@@ -82,7 +85,6 @@ ENVIRONMENT_VARIABLES
                 Subnets:
                   - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet1'
                   - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet2'
-          Arn: !Sub '${EnvironmentName}-ECSCluster.Arn'
 
   # The service. The service is a resource which allows you to run multiple
   # copies of a type of task, and gather up their logs and metrics, as well
