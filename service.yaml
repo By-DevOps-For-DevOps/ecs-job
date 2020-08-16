@@ -67,9 +67,7 @@ ENVIRONMENT_VARIABLES
       ScheduleExpression: 'cron(10 * * * ? *)'
       State: ENABLED
       Targets:
-        - Arn: !GetAtt
-            - !Sub '${EnvironmentName}-ECSCluster'
-            - Arn
+        - Arn: !Ref '${EnvironmentName}-ECSCluster'
           Id: !Sub '${EnvironmentName}-APP_NAME'
           RoleArn: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
           EcsParameters:
