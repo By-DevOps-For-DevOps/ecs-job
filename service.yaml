@@ -18,6 +18,12 @@ Parameters:
     Default: ECS_REPOSITORY_NAME
 
 Resources:
+  # Only used to overcome CloudFormation limitation with !GetAtt
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Ref EnvironmentName
+
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
@@ -67,7 +73,10 @@ ENVIRONMENT_VARIABLES
       ScheduleExpression: 'cron(10 * * * ? *)'
       State: ENABLED
       Targets:
-        - Arn: !Ref '${EnvironmentName}-ECSCluster'
+        #- Arn: !Sub 'arn:aws:ecs:AWS_REGION:AWS_ACCOUNT:cluster/${EnvironmentName}'
+        - Arn: !GetAtt
+            - ECSCluster
+            - Arn
           Id: !Sub '${EnvironmentName}-APP_NAME'
           RoleArn: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
           EcsParameters:
