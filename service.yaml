@@ -68,7 +68,7 @@ ENVIRONMENT_VARIABLES
       Targets:
         - Arn: !Sub 'arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${EnvironmentName}'
           Id: !Sub '${EnvironmentName}-APP_NAME'
-          RoleArn: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
+          #RoleArn: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
           EcsParameters:
             TaskDefinitionArn: !Ref TaskDefinition
             TaskCount: 1
