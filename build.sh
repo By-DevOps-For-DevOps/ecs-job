@@ -101,6 +101,7 @@ if [ "$DEPLOY_ENVIRONMENT" != "release" ] ; then
   sed -i "s@ECS_REPOSITORY_NAME@$ECR_NAME@g" ecs/service.yaml
   sed -i "s@ECS_CPU_COUNT@$ECS_CPU_COUNT@g" ecs/service.yaml
   sed -i "s@ECS_MEMORY_RESERVATION_COUNT@$ECS_MEMORY_RESERVATION_COUNT@g" ecs/service.yaml
+  sed -i "s@DESIRED_COUNT@$DESIRED_COUNT@g" ecs/service.yaml
 
   . ecs/params.sh
   perl -i -pe 's/ENVIRONMENT_VARIABLES/`cat env.yaml`/e' ecs/service.yaml
