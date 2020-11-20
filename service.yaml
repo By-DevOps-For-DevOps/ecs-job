@@ -51,7 +51,7 @@ Resources:
         LogConfiguration:
           LogDriver: awslogs
           Options:
-            awslogs-group: !Ref ContainerLogGroup
+            awslogs-group: !Ref 'ContainerLogGroup'
             awslogs-region: !Ref 'AWS::Region'
             awslogs-stream-prefix: !Sub "${EnvironmentName}-APP_NAME"
         Environment:
