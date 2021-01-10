@@ -1,3 +1,3 @@
 # ecs-job
 
-Holds ecs files for nodejs-app-pipeline
+ECS Service Pipeline For Running Tasks on a cron-like Schedule

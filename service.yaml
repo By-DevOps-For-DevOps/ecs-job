@@ -4,6 +4,10 @@ Parameters:
     Type: String
     Description: Tag of the Docker Image.
     Default: IMAGE_TAG
+  ScheduleExpression:
+    Type: String
+    Description: E.g. rate(10 minutes) or cron(10 * * * ? *).
+    Default: rate(1 day)
   EnvironmentName:
     Type: String
     Description: Name of the Environment.
@@ -12,42 +16,77 @@ Parameters:
     Type: String
     Description: Email address to notify when an API activity has triggered an alarm
     Default: EMAIL
-  ECSRespositoryName:
+  ECSRepositoryName:
     Type: String
     Description: 'ECS Repository Name'
     Default: ECS_REPOSITORY_NAME
 
 Resources:
+  # The task definition. This is a simple metadata description of what
+  # container to run, and what resource requirements it has.
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      #The Family name will be used along with ECS_CLUSTER_NAME to prepare the stack name. It should be of Format abb-cdd-sd
+      # The Family name will be used along with ECS_CLUSTER_NAME to prepare the stack name.
+      # It should be of Format abb-cdd-sd
       Family: APP_NAME-BUILD_SCOPE
+      Cpu: ECS_CPU_COUNT
+      Memory: ECS_MEMORY_RESERVATION_COUNT
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn:
+        Fn::ImportValue: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
+      # TODO: too much power for the task
+      TaskRoleArn:
+        Fn::ImportValue: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
       ContainerDefinitions:
       - Name: APP_NAME
-        Cpu: ECS_CPU_COUNT
         Essential: 'true'
-        Image:
-          "Fn::Sub":
-            - '${AccountId}.dkr.ecr.${Region}.amazonaws.com/${ECSRespositoryName}:TAG'
-            - { AccountId: { "Ref" : "AWS::AccountId" }, Region: { "Ref" : "AWS::Region" }}
-        MemoryReservation: ECS_MEMORY_RESERVATION_COUNT
+        Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepositoryName}:TAG'
+        Ulimits:
+          - Name: nofile
+            SoftLimit: 2048
+            HardLimit: 8192
         LogConfiguration:
           LogDriver: awslogs
           Options:
-            awslogs-group:
-              Ref: ContainerLogGroup
-            awslogs-region:
-              Ref: AWS::Region
-        ENVIRONMENT_VARIABLES
+            awslogs-group: !Ref 'ContainerLogGroup'
+            awslogs-region: !Ref 'AWS::Region'
+            awslogs-stream-prefix: !Sub "${EnvironmentName}-APP_NAME"
+        Environment:
+ENVIRONMENT_VARIABLES
+
   ContainerLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "${EnvironmentName}-APP_NAME"
+      LogGroupName: !Sub '${EnvironmentName}-APP_NAME'
       RetentionInDays: 14
-  CloudwatchLogsGroup:
-    Type: AWS::Logs::LogGroup
+
+  # ECS Scheduled Task which runs a cron-line schedule with ScheduleExpression.
+  # E.g. for value of ScheduleExpression are rate(10 minutes) or cron(10 * * * ? *).
+  # For more detail https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html.
+  ScheduledTaskRule:
+    Type: AWS::Events::Rule
     Properties:
-      LogGroupName:
-        Fn::Sub: "ECSLogGroup-${AWS::StackName}"
-      RetentionInDays: 14
+      Description: !Sub 'Trigger ${EnvironmentName}-APP_NAME according to the specified schedule'
+      ScheduleExpression: !Ref ScheduleExpression
+      State: ENABLED
+      Targets:
+        - Arn: !Sub 'arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${EnvironmentName}'
+          Id: !Sub '${EnvironmentName}-APP_NAME'
+          RoleArn:
+            Fn::ImportValue: !Sub '${EnvironmentName}-ECSTaskExecutionRoleArn'
+          EcsParameters:
+            TaskDefinitionArn: !Ref TaskDefinition
+            TaskCount: 1
+            LaunchType: 'FARGATE'
+            PlatformVersion: 'LATEST'
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: DISABLED
+                SecurityGroups:
+                  - Fn::ImportValue: !Sub '${EnvironmentName}-ECSHostSecurityGroup'
+                Subnets:
+                  - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet1'
+                  - Fn::ImportValue: !Sub '${EnvironmentName}-PrivateSubnet2'
