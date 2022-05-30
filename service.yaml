@@ -2,23 +2,23 @@ AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   Tag:
     Type: String
-    Description: Tag of the Docker Image.
+    Description: "Tag of the Docker Image"
     Default: IMAGE_TAG
   ScheduleExpression:
     Type: String
-    Description: E.g. rate(10 minutes) or cron(10 * * * ? *).
-    Default: rate(1 day)
+    Description: "E.g. rate(10 minutes) or cron(10 * * * ? *)"
+    Default: "cron(0 1 * * ? *)"
   EnvironmentName:
     Type: String
-    Description: Name of the Environment.
+    Description: "Name of the Environment"
     Default: ENVIRONMENT_NAME
   Email:
     Type: String
-    Description: Email address to notify when an API activity has triggered an alarm
+    Description: "Email address to notify when an API activity has triggered an alarm"
     Default: EMAIL
   ECSRepositoryName:
     Type: String
-    Description: 'ECS Repository Name'
+    Description: "ECS Repository Name"
     Default: ECS_REPOSITORY_NAME
 
 Resources:
